@@ -11,12 +11,15 @@
 		783C296A2E50806700CA122C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 783C29652E50806700CA122C /* Main.storyboard */; };
 		783C296B2E50806700CA122C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 783C295F2E50806700CA122C /* Assets.xcassets */; };
 		783C296C2E50806700CA122C /* before_mov.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 783C29602E50806700CA122C /* before_mov.mp4 */; };
-		783C296D2E50806700CA122C /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 783C29612E50806700CA122C /* Info.plist */; };
 		783C296E2E50806700CA122C /* after_mov.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 783C295D2E50806700CA122C /* after_mov.mp4 */; };
 		783C296F2E50806700CA122C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C295E2E50806700CA122C /* AppDelegate.swift */; };
 		783C29702E50806700CA122C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C29662E50806700CA122C /* SceneDelegate.swift */; };
 		783C29712E50806700CA122C /* EffectPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C295B2E50806700CA122C /* EffectPreviewView.swift */; };
 		783C29722E50806700CA122C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C29672E50806700CA122C /* ViewController.swift */; };
+		783C29732E50806700CA122C /* EffectPreviewView in Sources */ = {isa = PBXBuildFile; fileRef = 783C295C2E50806700CA122C /* EffectPreviewView */; };
+		783C29752E50886B00CA122C /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 783C29742E50886B00CA122C /* SnapKit */; };
+		783C29772E50C92600CA122C /* DefaultSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C29762E50C92600CA122C /* DefaultSliderView.swift */; };
+		783C29782E50C92600CA122C /* SimpleSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C29792E50C92600CA122C /* SimpleSliderView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +34,8 @@
 		783C29642E50806700CA122C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		783C29662E50806700CA122C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		783C29672E50806700CA122C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		783C29762E50C92600CA122C /* DefaultSliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSliderView.swift; sourceTree = "<group>"; };
+		783C29792E50C92600CA122C /* SimpleSliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleSliderView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				783C29752E50886B00CA122C /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -63,6 +69,7 @@
 		783C295C2E50806700CA122C /* EffectPreviewView */ = {
 			isa = PBXGroup;
 			children = (
+				783C29762E50C92600CA122C /* DefaultSliderView.swift */,
 				783C295B2E50806700CA122C /* EffectPreviewView.swift */,
 			);
 			path = EffectPreviewView;
@@ -71,6 +78,7 @@
 		783C29682E50806700CA122C /* EffectPreviewV */ = {
 			isa = PBXGroup;
 			children = (
+				783C29782E50CB9C00CA122C /* Demo */,
 				783C295C2E50806700CA122C /* EffectPreviewView */,
 				783C295D2E50806700CA122C /* after_mov.mp4 */,
 				783C295E2E50806700CA122C /* AppDelegate.swift */,
@@ -80,9 +88,17 @@
 				783C29632E50806700CA122C /* LaunchScreen.storyboard */,
 				783C29652E50806700CA122C /* Main.storyboard */,
 				783C29662E50806700CA122C /* SceneDelegate.swift */,
-				783C29672E50806700CA122C /* ViewController.swift */,
 			);
 			path = EffectPreviewV;
+			sourceTree = "<group>";
+		};
+		783C29782E50CB9C00CA122C /* Demo */ = {
+			isa = PBXGroup;
+			children = (
+				783C29672E50806700CA122C /* ViewController.swift */,
+				783C29792E50C92600CA122C /* SimpleSliderView.swift */,
+			);
+			path = Demo;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,6 +118,7 @@
 			);
 			name = EffectPreviewView;
 			packageProductDependencies = (
+				783C29742E50886B00CA122C /* SnapKit */,
 			);
 			productName = EffectPreviewView;
 			productReference = 780DBED62DDE05E5003E63B4 /* EffectPreviewView.app */;
@@ -131,6 +148,9 @@
 			);
 			mainGroup = 780DBECD2DDE05E5003E63B4;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				783C29732E50886B00CA122C /* XCRemoteSwiftPackageReference "SnapKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 780DBED72DDE05E5003E63B4 /* Products */;
 			projectDirPath = "";
@@ -164,6 +184,9 @@
 				783C296F2E50806700CA122C /* AppDelegate.swift in Sources */,
 				783C29702E50806700CA122C /* SceneDelegate.swift in Sources */,
 				783C29712E50806700CA122C /* EffectPreviewView.swift in Sources */,
+				783C29772E50C92600CA122C /* DefaultSliderView.swift in Sources */,
+				783C29782E50C92600CA122C /* SimpleSliderView.swift in Sources */,
+				783C29732E50806700CA122C /* EffectPreviewView in Sources */,
 				783C29722E50806700CA122C /* ViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -385,6 +408,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		783C29732E50886B00CA122C /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		783C29742E50886B00CA122C /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 783C29732E50886B00CA122C /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 780DBECE2DDE05E5003E63B4 /* Project object */;
 }

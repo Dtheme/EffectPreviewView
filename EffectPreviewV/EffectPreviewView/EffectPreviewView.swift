@@ -1,5 +1,20 @@
+//
+//  DefaultSliderView.swift
+//  EffectPreviewView
+//
+//  Created by dzw on 2025/5/21.
+//
+
 import UIKit
 import AVFoundation
+
+/// 滑动方向枚举
+public enum EffectPreviewDirection {
+    case horizontal  // 水平滑动（默认）
+    case vertical    // 垂直滑动
+}
+
+
 
 /// 支持图片/视频前后对比滑动的视图组件
 public class EffectPreviewView: UIView {
@@ -9,7 +24,8 @@ public class EffectPreviewView: UIView {
     private var originalPlayerLayer: AVPlayerLayer?
     private var editedPlayerLayer: AVPlayerLayer?
     private let maskLayer = CALayer()
-    private let sliderView = UIView()
+    private var sliderView: UIView!
+    private var customSliderView: UIView?
     private let sliderWidth: CGFloat = 28
     private let sliderInnerLineWidth: CGFloat = 3
     private let sliderInnerLineColor: UIColor = UIColor(white: 0.7, alpha: 0.7)
@@ -19,15 +35,49 @@ public class EffectPreviewView: UIView {
     private let originalVideoContainerView = UIView()
     private let editedVideoContainerView = UIView()
     
+    // MARK: - 配置属性
+    /// 滑动方向（默认为水平）
+    public var direction: EffectPreviewDirection = .horizontal {
+        didSet {
+            if direction != oldValue {
+                handleDirectionChange(from: oldValue, to: direction)
+            }
+        }
+    }
+    
+    /// 默认滑块位置（0~1，默认0.5居中）
+    /// 水平方向：0为最左，1为最右
+    /// 垂直方向：0为最上，1为最下
+    public var defaultPosition: CGFloat = 0.5 {
+        didSet {
+            let clamped = min(max(defaultPosition, 0), 1)
+            if clamped != defaultPosition {
+                defaultPosition = clamped
+            }
+            if sliderPosition == 0.5 || abs(sliderPosition - oldValue) < 0.01 {
+                sliderPosition = defaultPosition
+            }
+        }
+    }
+    
     // MARK: - 状态
     private var isVideoMode = false
     private var originalPlayer: AVPlayer?
     private var editedPlayer: AVPlayer?
     private var playerObservers: [NSKeyValueObservation] = []
     
-    /// 当前滑块位置（0~1，0为左侧，1为右侧）
+    /// 当前滑块位置（0~1）
+    /// 水平方向：0为最左，1为最右
+    /// 垂直方向：0为最上，1为最下
     public private(set) var sliderPosition: CGFloat = 0.5 {
         didSet {
+            // 避免无限递归和无意义的更新
+            guard sliderPosition != oldValue else { return }
+            let clamped = min(max(sliderPosition, 0), 1)
+            if clamped != sliderPosition {
+                sliderPosition = clamped
+                return
+            }
             onSliderChanged?(sliderPosition)
         }
     }
@@ -38,22 +88,37 @@ public class EffectPreviewView: UIView {
     /// 滑动回调
     public var onSliderChanged: ((CGFloat) -> Void)?
     
+    /// 设置自定义滑块视图
+    /// - Parameter customView: 自定义滑块视图，传入nil使用默认样式
+    public func setCustomSliderView(_ customView: UIView?) {
+        // 移除旧的自定义视图
+        customSliderView?.removeFromSuperview()
+        customSliderView = customView
+        
+        if let custom = customView {
+            // 使用自定义滑块视图
+            sliderView.isHidden = true
+            custom.frame = sliderView.frame
+            custom.isUserInteractionEnabled = isInteractiveEnabled
+            
+            // 为自定义滑块添加手势识别器
+            let customPan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+            custom.addGestureRecognizer(customPan)
+            
+            addSubview(custom)
+            customSliderView = custom
+        } else {
+            // 使用默认滑块视图
+            sliderView.isHidden = false
+            customSliderView = nil
+        }
+        
+        setNeedsLayout()
+    }
+    
     /// 自定义滑块视图提供者
     public weak var sliderProvider: EffectPreviewSliderProvider? {
         didSet { reloadSliderView() }
-    }
-    /// 当前滑块视图（可自定义）
-    private var customSliderView: UIView? {
-        didSet {
-            oldValue?.removeFromSuperview()
-            if let custom = customSliderView {
-                addSubview(custom)
-                bringSubviewToFront(custom)
-                sliderView.isHidden = true
-            } else {
-                sliderView.isHidden = false
-            }
-        }
     }
     
     // MARK: - 遮罩动画与样式自定义
@@ -122,11 +187,18 @@ public class EffectPreviewView: UIView {
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
+        sliderPosition = defaultPosition
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupUI()
+        sliderPosition = defaultPosition
+    }
+    
+    deinit {
+        // 清理所有观察者和资源
+        cleanupResources()
     }
     
     // MARK: - UI 构建
@@ -145,21 +217,14 @@ public class EffectPreviewView: UIView {
         addSubview(editedVideoContainerView)
         // mask
         editedImageView.layer.mask = maskLayer
-        // 优雅现代滑块
-        sliderView.backgroundColor = .clear
-        sliderView.layer.cornerRadius = sliderWidth / 2
-        sliderView.layer.shadowColor = UIColor.black.cgColor
-        sliderView.layer.shadowOpacity = 0.18
-        sliderView.layer.shadowRadius = 8
-        sliderView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        
+        // 使用默认滑块视图
+        sliderView = DefaultSliderView(direction: direction)
         addSubview(sliderView)
         // 手势
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         sliderView.addGestureRecognizer(pan)
         sliderView.isUserInteractionEnabled = isInteractiveEnabled
-        // 自定义滑块也需要响应拖动
-        let customPan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
-        customSliderView?.addGestureRecognizer(customPan)
     }
     
     public override func layoutSubviews() {
@@ -171,97 +236,83 @@ public class EffectPreviewView: UIView {
         originalPlayerLayer?.frame = originalVideoContainerView.bounds
         editedPlayerLayer?.frame = editedVideoContainerView.bounds
         updateMaskAndSlider()
-        drawModernSlider()
-        // 滑块为与 view 等高的圆角矩形
-        sliderView.layer.cornerRadius = sliderWidth / 2
-        sliderView.frame.size.width = sliderWidth
-        sliderView.frame.size.height = bounds.height
+        
+        // 更新默认滑块视图的方向
+        if let defaultSlider = sliderView as? DefaultSliderView {
+            defaultSlider.updateDirection(direction)
+        }
     }
     
-    private func drawModernSlider() {
-        // 清除旧内容
-        sliderView.layer.sublayers?.removeAll(where: { $0.name == "sliderDesign" })
-        sliderView.subviews.forEach { if $0.tag == 999 { $0.removeFromSuperview() } }
-        
-        // 添加分割线背景
-        let dividerLine = CALayer()
-        dividerLine.name = "sliderDesign"
-        dividerLine.frame = CGRect(x: (sliderWidth - 2) / 2, y: 0, width: 2, height: bounds.height)
-        dividerLine.backgroundColor = UIColor.white.withAlphaComponent(0.8).cgColor
-        sliderView.layer.addSublayer(dividerLine)
-        
-        // 创建圆形滑块 - 居中显示，减小直径
-        let sliderSize: CGFloat = 36
-        let sliderY = (bounds.height - sliderSize) / 2
-        let sliderFrame = CGRect(x: (sliderWidth - sliderSize) / 2, y: sliderY, width: sliderSize, height: sliderSize)
-        
-        // 白色圆形背景
-        let circleLayer = CALayer()
-        circleLayer.name = "sliderDesign"
-        circleLayer.frame = sliderFrame
-        circleLayer.backgroundColor = UIColor.white.cgColor
-        circleLayer.cornerRadius = sliderSize / 2
-        circleLayer.shadowColor = UIColor.black.cgColor
-        circleLayer.shadowOpacity = 0.15
-        circleLayer.shadowRadius = 6
-        circleLayer.shadowOffset = CGSize(width: 0, height: 2)
-        sliderView.layer.addSublayer(circleLayer)
-        
-        // 添加左右箭头图标
-        let arrowContainer = UIView(frame: sliderFrame)
-        arrowContainer.tag = 999
-        arrowContainer.isUserInteractionEnabled = false
-        
-        // 左箭头 - 调整位置适应更小的圆形
-        let leftArrow = createArrowImageView(direction: .left)
-        leftArrow.frame = CGRect(x: 6, y: (sliderSize - 10) / 2, width: 10, height: 10)
-        arrowContainer.addSubview(leftArrow)
-        
-        // 右箭头 - 调整位置适应更小的圆形
-        let rightArrow = createArrowImageView(direction: .right)
-        rightArrow.frame = CGRect(x: sliderSize - 16, y: (sliderSize - 10) / 2, width: 10, height: 10)
-        arrowContainer.addSubview(rightArrow)
-        
-        sliderView.addSubview(arrowContainer)
-    }
+
     
-    private enum ArrowDirection {
-        case left, right
-    }
+    // MARK: - 公开方法
     
-    private func createArrowImageView(direction: ArrowDirection) -> UIImageView {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
-        imageView.tintColor = UIColor.gray
-        
-        // 创建箭头路径
-        let path = UIBezierPath()
-        let size: CGFloat = 12
-        
-        if direction == .left {
-            // 左箭头 <
-            path.move(to: CGPoint(x: size * 0.7, y: size * 0.2))
-            path.addLine(to: CGPoint(x: size * 0.3, y: size * 0.5))
-            path.addLine(to: CGPoint(x: size * 0.7, y: size * 0.8))
+    /// 设置滑块位置（带动画）
+    /// - Parameters:
+    ///   - position: 滑块位置 (0~1)
+    ///   - animated: 是否使用动画
+    public func setSliderPosition(_ position: CGFloat, animated: Bool = true) {
+        let clamped = min(max(position, 0), 1)
+        if animated {
+            animateSliderPosition(to: clamped)
         } else {
-            // 右箭头 >
-            path.move(to: CGPoint(x: size * 0.3, y: size * 0.2))
-            path.addLine(to: CGPoint(x: size * 0.7, y: size * 0.5))
-            path.addLine(to: CGPoint(x: size * 0.3, y: size * 0.8))
+            sliderPosition = clamped
+            updateMaskAndSlider()
+        }
+    }
+    
+    /// 平滑切换方向并智能映射滑块位置
+    /// - Parameter newDirection: 新的滑动方向
+    public func switchDirection(to newDirection: EffectPreviewDirection, animated: Bool = true) {
+        guard direction != newDirection else { return }
+        
+        let currentPos = sliderPosition
+        
+        if animated {
+            // 使用智能位置映射，但延迟到方向切换动画完成后
+            let mappedPosition = intelligentPositionMapping(currentPos)
+            
+            // 先设置方向（会触发平滑的方向切换动画）
+            direction = newDirection
+            
+            // 延迟设置位置，等待方向切换动画完成
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                self.setSliderPosition(mappedPosition, animated: true)
+            }
+        } else {
+            direction = newDirection
+            let mappedPosition = intelligentPositionMapping(currentPos)
+            setSliderPosition(mappedPosition, animated: false)
+        }
+    }
+    
+    /// 智能位置映射，让方向切换更自然
+    private func intelligentPositionMapping(_ currentPosition: CGFloat) -> CGFloat {
+        // 如果接近中心，保持中心
+        if abs(currentPosition - 0.5) < 0.1 {
+            return 0.5
         }
         
-        // 创建箭头图像
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
-        let arrowImage = renderer.image { context in
-            UIColor.gray.setStroke()
-            path.lineWidth = 1.5
-            path.lineCapStyle = .round
-            path.lineJoinStyle = .round
-            path.stroke()
+        // 如果接近边缘，映射到对应的边缘区域
+        if currentPosition < 0.3 {
+            return 0.25  // 映射到1/4位置
+        } else if currentPosition > 0.7 {
+            return 0.75  // 映射到3/4位置
         }
         
-        imageView.image = arrowImage.withRenderingMode(.alwaysTemplate)
-        return imageView
+        // 其他情况保持原位置
+        return currentPosition
+    }
+    
+    /// 便利初始化方法
+    /// - Parameters:
+    ///   - direction: 滑动方向
+    ///   - defaultPosition: 默认位置 (0~1)
+    public convenience init(direction: EffectPreviewDirection = .horizontal, defaultPosition: CGFloat = 0.5) {
+        self.init(frame: .zero)
+        self.direction = direction
+        self.defaultPosition = defaultPosition
+        self.sliderPosition = defaultPosition
     }
     
     // MARK: - 图片模式
@@ -285,6 +336,10 @@ public class EffectPreviewView: UIView {
         editedVideoContainerView.isHidden = false
         originalImageView.isHidden = true
         editedImageView.isHidden = true
+        // 添加错误处理观察者
+        setupVideoErrorHandling(for: originalItem, isOriginal: true)
+        setupVideoErrorHandling(for: editedItem, isOriginal: false)
+        
         // 原视频
         let originalPlayer = AVPlayer(playerItem: originalItem)
         let originalLayer = AVPlayerLayer(player: originalPlayer)
@@ -326,8 +381,20 @@ public class EffectPreviewView: UIView {
     // MARK: - 拖动逻辑
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
         guard isInteractiveEnabled else { return }
+        
+        // 边界保护：避免除零错误
+        guard bounds.width > 0 && bounds.height > 0 else { return }
+        
         let location = gesture.location(in: self)
-        let percent = min(max(location.x / bounds.width, 0), 1)
+        let percent: CGFloat
+        
+        switch direction {
+        case .horizontal:
+            percent = min(max(location.x / bounds.width, 0), 1)
+        case .vertical:
+            percent = min(max(location.y / bounds.height, 0), 1)
+        }
+        
         sliderPosition = percent
         updateMaskAndSlider()
     }
@@ -335,10 +402,32 @@ public class EffectPreviewView: UIView {
     private var maskShapeLayer: CAShapeLayer? // 用于复用
     
     private func updateMaskAndSlider() {
-        let sliderX = bounds.width * sliderPosition
+        // 边界保护：避免无效的bounds
+        guard bounds.width > 0 && bounds.height > 0 else { return }
+        
+        let maskPath: UIBezierPath
+        let sliderFrame: CGRect
+        
+        switch direction {
+        case .horizontal:
+            let sliderX = bounds.width * sliderPosition
+            let maskWidth = max(0, bounds.width - sliderX)  // 确保宽度不为负
+            maskPath = UIBezierPath(rect: CGRect(x: sliderX, y: 0, width: maskWidth, height: bounds.height))
+            
+            // 允许滑块完全贴边，不限制中心点位置
+            sliderFrame = CGRect(x: sliderX - sliderWidth/2, y: 0, width: sliderWidth, height: bounds.height)
+            
+        case .vertical:
+            let sliderY = bounds.height * sliderPosition
+            let maskHeight = max(0, bounds.height - sliderY)  // 确保高度不为负
+            maskPath = UIBezierPath(rect: CGRect(x: 0, y: sliderY, width: bounds.width, height: maskHeight))
+            
+            // 允许滑块完全贴边，不限制中心点位置
+            sliderFrame = CGRect(x: 0, y: sliderY - sliderWidth/2, width: bounds.width, height: sliderWidth)
+        }
+        
         if isVideoMode {
             // 视频模式：editedVideoContainerView 设置 mask
-            let path = UIBezierPath(rect: CGRect(x: sliderX, y: 0, width: bounds.width - sliderX, height: bounds.height))
             let maskShape: CAShapeLayer
             if let existing = maskShapeLayer {
                 maskShape = existing
@@ -346,12 +435,14 @@ public class EffectPreviewView: UIView {
                 maskShape = CAShapeLayer()
                 maskShapeLayer = maskShape
             }
-            maskShape.path = path.cgPath
+            maskShape.path = maskPath.cgPath
             maskShape.frame = bounds
             editedVideoContainerView.layer.mask = maskShape
+            
+            // 在原图侧添加阴影效果
+            addDividerShadow(to: originalVideoContainerView, sliderPosition: sliderPosition)
         } else {
             // 图片模式：editedImageView 设置 mask
-            let path = UIBezierPath(rect: CGRect(x: sliderX, y: 0, width: bounds.width - sliderX, height: bounds.height))
             let maskShape: CAShapeLayer
             if let existing = maskShapeLayer {
                 maskShape = existing
@@ -359,15 +450,71 @@ public class EffectPreviewView: UIView {
                 maskShape = CAShapeLayer()
                 maskShapeLayer = maskShape
             }
-            maskShape.path = path.cgPath
+            maskShape.path = maskPath.cgPath
             maskShape.frame = bounds
             editedImageView.layer.mask = maskShape
+            
+            // 在原图侧添加阴影效果
+            addDividerShadow(to: originalImageView, sliderPosition: sliderPosition)
         }
-        sliderView.frame = CGRect(x: sliderX - sliderWidth/2, y: 0, width: sliderWidth, height: bounds.height)
+        sliderView.frame = sliderFrame
         if let custom = customSliderView {
             custom.frame = sliderView.frame
         }
         updateMaskEdgeStyle()
+    }
+    
+    /// 在分割线的原图侧添加阴影效果，营造编辑图片浮在上方的视觉层次
+    private func addDividerShadow(to targetView: UIView, sliderPosition: CGFloat) {
+        // 移除旧的阴影层
+        targetView.layer.sublayers?.removeAll(where: { $0.name == "dividerShadow" })
+        
+        // 只在滑块不在边缘时显示阴影
+        guard sliderPosition > 0.02 && sliderPosition < 0.98 else { return }
+        
+        let shadowLayer = CALayer()
+        shadowLayer.name = "dividerShadow"
+        
+        // 根据方向创建阴影
+        switch direction {
+        case .horizontal:
+            let shadowX = bounds.width * sliderPosition
+            let shadowWidth: CGFloat = 8  // 阴影宽度
+            shadowLayer.frame = CGRect(x: shadowX - shadowWidth, y: 0, width: shadowWidth, height: bounds.height)
+            
+            // 创建渐变阴影
+            let gradient = CAGradientLayer()
+            gradient.frame = shadowLayer.bounds
+            gradient.colors = [
+                UIColor.clear.cgColor,
+                UIColor.black.withAlphaComponent(0.08).cgColor,
+                UIColor.black.withAlphaComponent(0.15).cgColor
+            ]
+            gradient.locations = [0.0, 0.7, 1.0]
+            gradient.startPoint = CGPoint(x: 0, y: 0.5)
+            gradient.endPoint = CGPoint(x: 1, y: 0.5)
+            shadowLayer.addSublayer(gradient)
+            
+        case .vertical:
+            let shadowY = bounds.height * sliderPosition
+            let shadowHeight: CGFloat = 8  // 阴影高度
+            shadowLayer.frame = CGRect(x: 0, y: shadowY - shadowHeight, width: bounds.width, height: shadowHeight)
+            
+            // 创建渐变阴影
+            let gradient = CAGradientLayer()
+            gradient.frame = shadowLayer.bounds
+            gradient.colors = [
+                UIColor.clear.cgColor,
+                UIColor.black.withAlphaComponent(0.08).cgColor,
+                UIColor.black.withAlphaComponent(0.15).cgColor
+            ]
+            gradient.locations = [0.0, 0.7, 1.0]
+            gradient.startPoint = CGPoint(x: 0.5, y: 0)
+            gradient.endPoint = CGPoint(x: 0.5, y: 1)
+            shadowLayer.addSublayer(gradient)
+        }
+        
+        targetView.layer.addSublayer(shadowLayer)
     }
     
     // MARK: - 播放同步
@@ -458,10 +605,98 @@ public class EffectPreviewView: UIView {
         playbackEndObservers.removeAll()
     }
     
+    // MARK: - 方向切换处理
+    private func handleDirectionChange(from oldDirection: EffectPreviewDirection, to newDirection: EffectPreviewDirection) {
+        // 先隐藏滑块，避免从角落伸出的突兀效果
+        let originalAlpha = sliderView.alpha
+        let originalCustomAlpha = customSliderView?.alpha ?? 1.0
+        
+        UIView.animate(withDuration: 0.15, animations: {
+            // 淡出滑块（包括自定义滑块）
+            self.sliderView.alpha = 0.0
+            self.customSliderView?.alpha = 0.0
+        }) { _ in
+            // 更新自定义滑块的方向
+            if let customSlider = self.customSliderView as? SimpleSliderView {
+                customSlider.updateDirection(newDirection)
+            }
+            
+            // 在滑块隐藏后进行布局更新
+            UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseInOut], animations: {
+                self.setNeedsLayout()
+                self.layoutIfNeeded()
+            }) { _ in
+                // 布局完成后淡入滑块
+                UIView.animate(withDuration: 0.15, animations: {
+                    self.sliderView.alpha = originalAlpha
+                    self.customSliderView?.alpha = originalCustomAlpha
+                })
+            }
+        }
+    }
+    
+    // MARK: - 资源清理
+    private func cleanupResources() {
+        // 清理播放器观察者
+        playerObservers.removeAll()
+        
+        // 清理播放结束观察者
+        removePlaybackEndObservers()
+        
+        // 停止并清理播放器
+        originalPlayer?.pause()
+        editedPlayer?.pause()
+        originalPlayer = nil
+        editedPlayer = nil
+        
+        // 清理播放器层
+        originalPlayerLayer?.removeFromSuperlayer()
+        editedPlayerLayer?.removeFromSuperlayer()
+        originalPlayerLayer = nil
+        editedPlayerLayer = nil
+        
+        // 清理遮罩层
+        maskShapeLayer = nil
+        
+        // 清理自定义滑块视图
+        customSliderView?.removeFromSuperview()
+        customSliderView = nil
+    }
+    
     // MARK: - 公共接口
     /// 重置滑块到中间
     public func resetSliderPosition() {
         animateSliderPosition(to: 0.5)
+    }
+    
+    // MARK: - 视频错误处理
+    private func setupVideoErrorHandling(for playerItem: AVPlayerItem, isOriginal: Bool) {
+        // 监听播放器状态
+        let observer = playerItem.observe(\.status, options: [.new]) { [weak self] item, _ in
+            DispatchQueue.main.async {
+                switch item.status {
+                case .failed:
+                    self?.handleVideoError(item.error, isOriginal: isOriginal)
+                case .readyToPlay:
+                    // 视频准备就绪
+                    break
+                case .unknown:
+                    // 状态未知
+                    break
+                @unknown default:
+                    break
+                }
+            }
+        }
+        playerObservers.append(observer)
+    }
+    
+    private func handleVideoError(_ error: Error?, isOriginal: Bool) {
+        let videoType = isOriginal ? "原始视频" : "编辑后视频"
+        print("⚠️ \(videoType)加载失败: \(error?.localizedDescription ?? "未知错误")")
+        
+        // 可以在这里添加错误回调给外部处理
+        // onVideoLoadError?(error, isOriginal)
     }
     
     private func reloadSliderView() {

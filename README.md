@@ -11,11 +11,6 @@
 </div>
 
 
-- 滑动查看图片和视频的编辑前后对比效果
-- 滑块位置可自定义、可动画切换
-- 支持自定义滑块样式和遮罩边缘样式（普通、阴影、虚线等）
-
-
 ## 目录结构
 
 ```
@@ -40,16 +35,28 @@ EffectPreviewView/
 2. 参考如下用法：
 
 ```swift
+// 基本用法（默认水平方向，居中位置）
 let preview = EffectPreviewView()
-preview.setContent(original: 原始图片或视频, edited: 编辑后图片或视频)
+preview.setImages(original: originalImage, edited: editedImage)
+view.addSubview(preview)
+
+// 垂直方向滑动，默认位置在顶部1/4处
+let verticalPreview = EffectPreviewView(direction: .vertical, defaultPosition: 0.25)
+verticalPreview.setImages(original: originalImage, edited: editedImage)
+view.addSubview(verticalPreview)
+
+// 动态设置滑块位置
+preview.setSliderPosition(0.8, animated: true)
+
+// 监听滑块变化
 preview.onSliderChanged = { position in
-    // 监听滑块变化
+    print("滑块位置: \(position)")
 }
 ```
 
+
 测试示例在 `ViewController.swift` 。
-
-
+ 
 ## 许可证
 
 MIT License
