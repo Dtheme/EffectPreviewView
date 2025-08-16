@@ -6,30 +6,32 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		783C29692E50806700CA122C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 783C29632E50806700CA122C /* LaunchScreen.storyboard */; };
+		783C296A2E50806700CA122C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 783C29652E50806700CA122C /* Main.storyboard */; };
+		783C296B2E50806700CA122C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 783C295F2E50806700CA122C /* Assets.xcassets */; };
+		783C296C2E50806700CA122C /* before_mov.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 783C29602E50806700CA122C /* before_mov.mp4 */; };
+		783C296D2E50806700CA122C /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 783C29612E50806700CA122C /* Info.plist */; };
+		783C296E2E50806700CA122C /* after_mov.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 783C295D2E50806700CA122C /* after_mov.mp4 */; };
+		783C296F2E50806700CA122C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C295E2E50806700CA122C /* AppDelegate.swift */; };
+		783C29702E50806700CA122C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C29662E50806700CA122C /* SceneDelegate.swift */; };
+		783C29712E50806700CA122C /* EffectPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C295B2E50806700CA122C /* EffectPreviewView.swift */; };
+		783C29722E50806700CA122C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C29672E50806700CA122C /* ViewController.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		780DBED62DDE05E5003E63B4 /* EffectPreviewView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EffectPreviewView.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		783C295B2E50806700CA122C /* EffectPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectPreviewView.swift; sourceTree = "<group>"; };
+		783C295D2E50806700CA122C /* after_mov.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = after_mov.mp4; sourceTree = "<group>"; };
+		783C295E2E50806700CA122C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		783C295F2E50806700CA122C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		783C29602E50806700CA122C /* before_mov.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = before_mov.mp4; sourceTree = "<group>"; };
+		783C29612E50806700CA122C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		783C29622E50806700CA122C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		783C29642E50806700CA122C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		783C29662E50806700CA122C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		783C29672E50806700CA122C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		780DBEE82DDE05E6003E63B4 /* Exceptions for "EffectPreviewView" folder in "EffectPreviewView" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 780DBED52DDE05E5003E63B4 /* EffectPreviewView */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		780DBED82DDE05E5003E63B4 /* EffectPreviewView */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				780DBEE82DDE05E6003E63B4 /* Exceptions for "EffectPreviewView" folder in "EffectPreviewView" target */,
-			);
-			path = EffectPreviewView;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		780DBED32DDE05E5003E63B4 /* Frameworks */ = {
@@ -45,7 +47,7 @@
 		780DBECD2DDE05E5003E63B4 = {
 			isa = PBXGroup;
 			children = (
-				780DBED82DDE05E5003E63B4 /* EffectPreviewView */,
+				783C29682E50806700CA122C /* EffectPreviewV */,
 				780DBED72DDE05E5003E63B4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +58,31 @@
 				780DBED62DDE05E5003E63B4 /* EffectPreviewView.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		783C295C2E50806700CA122C /* EffectPreviewView */ = {
+			isa = PBXGroup;
+			children = (
+				783C295B2E50806700CA122C /* EffectPreviewView.swift */,
+			);
+			path = EffectPreviewView;
+			sourceTree = "<group>";
+		};
+		783C29682E50806700CA122C /* EffectPreviewV */ = {
+			isa = PBXGroup;
+			children = (
+				783C295C2E50806700CA122C /* EffectPreviewView */,
+				783C295D2E50806700CA122C /* after_mov.mp4 */,
+				783C295E2E50806700CA122C /* AppDelegate.swift */,
+				783C295F2E50806700CA122C /* Assets.xcassets */,
+				783C29602E50806700CA122C /* before_mov.mp4 */,
+				783C29612E50806700CA122C /* Info.plist */,
+				783C29632E50806700CA122C /* LaunchScreen.storyboard */,
+				783C29652E50806700CA122C /* Main.storyboard */,
+				783C29662E50806700CA122C /* SceneDelegate.swift */,
+				783C29672E50806700CA122C /* ViewController.swift */,
+			);
+			path = EffectPreviewV;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -72,9 +99,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				780DBED82DDE05E5003E63B4 /* EffectPreviewView */,
 			);
 			name = EffectPreviewView;
 			packageProductDependencies = (
@@ -122,6 +146,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				783C29692E50806700CA122C /* LaunchScreen.storyboard in Resources */,
+				783C296A2E50806700CA122C /* Main.storyboard in Resources */,
+				783C296B2E50806700CA122C /* Assets.xcassets in Resources */,
+				783C296C2E50806700CA122C /* before_mov.mp4 in Resources */,
+				783C296E2E50806700CA122C /* after_mov.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -132,10 +161,33 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				783C296F2E50806700CA122C /* AppDelegate.swift in Sources */,
+				783C29702E50806700CA122C /* SceneDelegate.swift in Sources */,
+				783C29712E50806700CA122C /* EffectPreviewView.swift in Sources */,
+				783C29722E50806700CA122C /* ViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		783C29632E50806700CA122C /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				783C29622E50806700CA122C /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		783C29652E50806700CA122C /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				783C29642E50806700CA122C /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		780DBEEA2DDE05E6003E63B4 /* Debug */ = {
@@ -146,7 +198,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = EffectPreviewView/Info.plist;
+				INFOPLIST_FILE = EffectPreviewV/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -173,7 +225,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = EffectPreviewView/Info.plist;
+				INFOPLIST_FILE = EffectPreviewV/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
