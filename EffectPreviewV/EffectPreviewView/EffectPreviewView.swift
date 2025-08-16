@@ -181,34 +181,87 @@ public class EffectPreviewView: UIView {
     private func drawModernSlider() {
         // 清除旧内容
         sliderView.layer.sublayers?.removeAll(where: { $0.name == "sliderDesign" })
-        // 毛玻璃效果
-        if #available(iOS 13.0, *) {
-            if sliderView.subviews.first(where: { $0 is UIVisualEffectView }) == nil {
-                let blur = UIVisualEffectView(effect: UIBlurEffect(style: .systemThinMaterialLight))
-                blur.frame = sliderView.bounds
-                blur.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                blur.isUserInteractionEnabled = false
-                blur.alpha = 0.5
-                sliderView.insertSubview(blur, at: 0)
-            }
+        sliderView.subviews.forEach { if $0.tag == 999 { $0.removeFromSuperview() } }
+        
+        // 添加分割线背景
+        let dividerLine = CALayer()
+        dividerLine.name = "sliderDesign"
+        dividerLine.frame = CGRect(x: (sliderWidth - 2) / 2, y: 0, width: 2, height: bounds.height)
+        dividerLine.backgroundColor = UIColor.white.withAlphaComponent(0.8).cgColor
+        sliderView.layer.addSublayer(dividerLine)
+        
+        // 创建圆形滑块 - 居中显示，减小直径
+        let sliderSize: CGFloat = 36
+        let sliderY = (bounds.height - sliderSize) / 2
+        let sliderFrame = CGRect(x: (sliderWidth - sliderSize) / 2, y: sliderY, width: sliderSize, height: sliderSize)
+        
+        // 白色圆形背景
+        let circleLayer = CALayer()
+        circleLayer.name = "sliderDesign"
+        circleLayer.frame = sliderFrame
+        circleLayer.backgroundColor = UIColor.white.cgColor
+        circleLayer.cornerRadius = sliderSize / 2
+        circleLayer.shadowColor = UIColor.black.cgColor
+        circleLayer.shadowOpacity = 0.15
+        circleLayer.shadowRadius = 6
+        circleLayer.shadowOffset = CGSize(width: 0, height: 2)
+        sliderView.layer.addSublayer(circleLayer)
+        
+        // 添加左右箭头图标
+        let arrowContainer = UIView(frame: sliderFrame)
+        arrowContainer.tag = 999
+        arrowContainer.isUserInteractionEnabled = false
+        
+        // 左箭头 - 调整位置适应更小的圆形
+        let leftArrow = createArrowImageView(direction: .left)
+        leftArrow.frame = CGRect(x: 6, y: (sliderSize - 10) / 2, width: 10, height: 10)
+        arrowContainer.addSubview(leftArrow)
+        
+        // 右箭头 - 调整位置适应更小的圆形
+        let rightArrow = createArrowImageView(direction: .right)
+        rightArrow.frame = CGRect(x: sliderSize - 16, y: (sliderSize - 10) / 2, width: 10, height: 10)
+        arrowContainer.addSubview(rightArrow)
+        
+        sliderView.addSubview(arrowContainer)
+    }
+    
+    private enum ArrowDirection {
+        case left, right
+    }
+    
+    private func createArrowImageView(direction: ArrowDirection) -> UIImageView {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.tintColor = UIColor.gray
+        
+        // 创建箭头路径
+        let path = UIBezierPath()
+        let size: CGFloat = 12
+        
+        if direction == .left {
+            // 左箭头 <
+            path.move(to: CGPoint(x: size * 0.7, y: size * 0.2))
+            path.addLine(to: CGPoint(x: size * 0.3, y: size * 0.5))
+            path.addLine(to: CGPoint(x: size * 0.7, y: size * 0.8))
         } else {
-            sliderView.backgroundColor = UIColor.white.withAlphaComponent(0.25)
+            // 右箭头 >
+            path.move(to: CGPoint(x: size * 0.3, y: size * 0.2))
+            path.addLine(to: CGPoint(x: size * 0.7, y: size * 0.5))
+            path.addLine(to: CGPoint(x: size * 0.3, y: size * 0.8))
         }
-        // 半透明蒙层
-        let overlay = CALayer()
-        overlay.name = "sliderDesign"
-        overlay.frame = sliderView.bounds
-        overlay.backgroundColor = UIColor.white.withAlphaComponent(0.12).cgColor
-        overlay.cornerRadius = sliderView.bounds.width / 2
-        sliderView.layer.insertSublayer(overlay, at: 1)
-        // 外圈微弱描边
-        let border = CAShapeLayer()
-        border.name = "sliderDesign"
-        border.path = UIBezierPath(roundedRect: sliderView.bounds, cornerRadius: sliderView.bounds.width / 2).cgPath
-        border.strokeColor = UIColor(white: 0.85, alpha: 0.22).cgColor
-        border.fillColor = UIColor.clear.cgColor
-        border.lineWidth = 1.0
-        sliderView.layer.addSublayer(border)
+        
+        // 创建箭头图像
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
+        let arrowImage = renderer.image { context in
+            UIColor.gray.setStroke()
+            path.lineWidth = 1.5
+            path.lineCapStyle = .round
+            path.lineJoinStyle = .round
+            path.stroke()
+        }
+        
+        imageView.image = arrowImage.withRenderingMode(.alwaysTemplate)
+        return imageView
     }
     
     // MARK: - 图片模式
